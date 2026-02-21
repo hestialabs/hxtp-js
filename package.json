@@ -1,0 +1,97 @@
+{
+    "name": "hxtp-js",
+    "version": "1.0.0",
+    "description": "HxTP/2.2 client SDK — HMAC-SHA256 signed protocol for IoT device communication. Browser, Node.js, Bun, Deno, React Native.",
+    "type": "module",
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./dist/index.d.ts",
+                "default": "./dist/index.js"
+            },
+            "require": {
+                "types": "./dist/index.d.cts",
+                "default": "./dist/index.cjs"
+            }
+        },
+        "./crypto/node": {
+            "import": {
+                "types": "./dist/crypto/node.d.ts",
+                "default": "./dist/crypto/node.js"
+            },
+            "require": {
+                "types": "./dist/crypto/node.d.cts",
+                "default": "./dist/crypto/node.cjs"
+            }
+        },
+        "./crypto/web": {
+            "import": {
+                "types": "./dist/crypto/web.d.ts",
+                "default": "./dist/crypto/web.js"
+            },
+            "require": {
+                "types": "./dist/crypto/web.d.cts",
+                "default": "./dist/crypto/web.cjs"
+            }
+        },
+        "./transport/websocket": {
+            "import": {
+                "types": "./dist/transport/websocket.d.ts",
+                "default": "./dist/transport/websocket.js"
+            },
+            "require": {
+                "types": "./dist/transport/websocket.d.cts",
+                "default": "./dist/transport/websocket.cjs"
+            }
+        }
+    },
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "tsup",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "typecheck": "tsc --noEmit",
+        "lint": "eslint src/ tests/",
+        "clean": "rm -rf dist",
+        "prepublishOnly": "npm run build"
+    },
+    "keywords": [
+        "hxtp",
+        "iot",
+        "mqtt",
+        "hmac",
+        "sha256",
+        "protocol",
+        "websocket",
+        "embedded",
+        "esp32",
+        "react-native",
+        "typescript"
+    ],
+    "author": "Hestia Labs",
+    "license": "MIT",
+    "homepage": "https://github.com/hestialab/sdk",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/hestialab/sdk.git",
+        "directory": "SDK/JS"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^25.3.0",
+        "eslint": "^9.0.0",
+        "tsup": "^8.4.0",
+        "typescript": "^5.7.0",
+        "vitest": "^3.0.0"
+    }
+}

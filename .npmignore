@@ -1,0 +1,10 @@
+node_modules
+src
+tests
+tsup.config.ts
+tsconfig.json
+vitest.config.ts
+.github
+.vscode
+*.test.ts
+*.test.js
