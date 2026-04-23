@@ -68,10 +68,10 @@ jobs:
       - name: Build SDK
         run: bun run build
 
-      - name: Publish to NPM
-        run: bun publish --access public
+      - name: Publish to NPM (Trusted Publishing)
+        run: npm publish --provenance --access public
         env:
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback if OIDC is not configured on NPM yet
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
