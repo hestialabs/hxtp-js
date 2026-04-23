@@ -68,10 +68,25 @@ jobs:
       - name: Build SDK
         run: bun run build
 
+      - name: Check if version already published
+        id: check
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+
+          if npm view "${PACKAGE_NAME}@${VERSION}" version --registry=https://registry.npmjs.org 2>/dev/null; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "Version ${VERSION} is already published — skipping NPM publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+            echo "Version ${VERSION} not yet published — will publish."
+          fi
+
       - name: Publish to NPM (Trusted Publishing)
+        if: steps.check.outputs.already_published == 'false'
         run: npm publish --provenance --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback if OIDC is not configured on NPM yet
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
