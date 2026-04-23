@@ -30,7 +30,7 @@ export interface HXTPConfig {
     /** Client application identifier (UUID). */
     readonly clientId?: string;
 
-    /** Protocol version override (default: "HxTP/2.2"). */
+    /** Protocol version override (default: "HxTP/3.0"). */
     readonly protocolVersion?: string;
 
     /** Transport implementation (default: WebSocket). */

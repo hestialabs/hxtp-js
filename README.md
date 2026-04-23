@@ -1,9 +1,10 @@
 # hxtp-js
 
-> HxTP/2.2 JavaScript/TypeScript Client SDK — HMAC-SHA256 signed IoT protocol.
+> HxTP/3.0 JavaScript/TypeScript Client SDK — HMAC-SHA256 signed IoT protocol.
 
-Production-grade. Tree-shakeable. Zero runtime dependencies.  
-Works in **Browser**, **Node.js 18+**, **Bun**, **Deno**, **React Native (Expo)**.
+Production-grade. Tree-shakeable. Zero runtime dependencies.\
+Works in **Browser**, **Node.js 18+**, **Bun**, **Deno**, **React Native
+(Expo)**.
 
 ## Installation
 
@@ -34,7 +35,10 @@ const client = new HXTPClient({
 
 client.on("connect", () => console.log("Connected"));
 client.on("message", (event) => console.log("Message:", event.parsed));
-client.on("error", (event) => console.error("Error:", event.code, event.message));
+client.on(
+  "error",
+  (event) => console.error("Error:", event.code, event.message),
+);
 
 await client.connect();
 
@@ -68,7 +72,9 @@ function useHXTP(config) {
     client.connect();
     clientRef.current = client;
 
-    return () => { client.disconnect(); };
+    return () => {
+      client.disconnect();
+    };
   }, []);
 
   return clientRef;
@@ -117,13 +123,13 @@ hxtp-js
 
 ## Crypto Providers
 
-| Environment    | Provider              | Import                          |
-| -------------- | --------------------- | ------------------------------- |
-| Node.js 18+   | `node:crypto`         | Auto-detected or `hxtp-js/crypto/node` |
-| Bun            | `node:crypto`         | Auto-detected                   |
-| Deno           | Web Crypto            | Auto-detected                   |
-| Browser        | `crypto.subtle`       | Auto-detected or `hxtp-js/crypto/web` |
-| React Native   | `crypto.subtle`       | `hxtp-js/crypto/web`      |
+| Environment  | Provider        | Import                                 |
+| ------------ | --------------- | -------------------------------------- |
+| Node.js 18+  | `node:crypto`   | Auto-detected or `hxtp-js/crypto/node` |
+| Bun          | `node:crypto`   | Auto-detected                          |
+| Deno         | Web Crypto      | Auto-detected                          |
+| Browser      | `crypto.subtle` | Auto-detected or `hxtp-js/crypto/web`  |
+| React Native | `crypto.subtle` | `hxtp-js/crypto/web`                   |
 
 Auto-detection runs on `connect()`. Override via `config.crypto`:
 
@@ -144,12 +150,12 @@ import type { Transport } from "hxtp-js";
 class MQTTTransport implements Transport {
   state: "disconnected" | "connecting" | "connected" = "disconnected";
 
-  async connect() { /* ... */ }
-  async disconnect() { /* ... */ }
-  async send(data: string) { /* ... */ }
-  onMessage(handler: (data: string) => void) { /* ... */ }
-  onClose(handler: (code: number, reason: string) => void) { /* ... */ }
-  onError(handler: (error: Error) => void) { /* ... */ }
+  async connect() {/* ... */}
+  async disconnect() {/* ... */}
+  async send(data: string) {/* ... */}
+  onMessage(handler: (data: string) => void) {/* ... */}
+  onClose(handler: (code: number, reason: string) => void) {/* ... */}
+  onError(handler: (error: Error) => void) {/* ... */}
 }
 
 const client = new HXTPClient({
@@ -160,13 +166,13 @@ const client = new HXTPClient({
 
 ## Protocol Alignment
 
-This SDK implements HxTP/2.2 with **exact parity** to:
+This SDK implements HxTP/3.0 with **exact parity** to:
 
 | Component         | Canonical String | HMAC-SHA256 | Dual-Key Rotation | Validation Pipeline |
-| ----------------- | ---------------- | ----------- | ------------------ | ------------------- |
-| **JS SDK** (this) | ✅               | ✅          | ✅                 | ✅ (6-step client)  |
-| Backend Server    | ✅               | ✅          | ✅                 | ✅ (7-step server)  |
-| Embedded C++ SDK  | ✅               | ✅          | ✅                 | ✅ (7-step device)  |
+| ----------------- | ---------------- | ----------- | ----------------- | ------------------- |
+| **JS SDK** (this) | ✅               | ✅          | ✅                | ✅ (6-step client)  |
+| Backend Server    | ✅               | ✅          | ✅                | ✅ (7-step server)  |
+| Embedded C++ SDK  | ✅               | ✅          | ✅                | ✅ (7-step device)  |
 
 ### Canonical String Format (FROZEN)
 
@@ -177,48 +183,52 @@ This SDK implements HxTP/2.2 with **exact parity** to:
 - **7 fields**, pipe-separated
 - **No field reordering**
 - **No extra fields**
-- Timestamp: `String()` coercion (matches backend `String(Msg.timestamp)` and embedded `snprintf("%lld", ts)`)
+- Timestamp: `String()` coercion (matches backend `String(Msg.timestamp)` and
+  embedded `snprintf("%lld", ts)`)
 
 ### Security Constants
 
-| Constant              | Value  | Description                  |
-| --------------------- | ------ | ---------------------------- |
-| `MAX_MESSAGE_AGE_SEC` | 300    | 5-minute message expiry      |
-| `TIMESTAMP_SKEW_SEC`  | 60     | 1-minute future clock skew   |
-| `NONCE_TTL_SEC`       | 600    | 10-minute nonce TTL          |
-| `MAX_PAYLOAD_BYTES`   | 16,384 | 16 KB payload hard limit     |
-| `MIN_NONCE_BYTES`     | 16     | Minimum nonce entropy        |
+| Constant              | Value  | Description                |
+| --------------------- | ------ | -------------------------- |
+| `MAX_MESSAGE_AGE_SEC` | 300    | 5-minute message expiry    |
+| `TIMESTAMP_SKEW_SEC`  | 60     | 1-minute future clock skew |
+| `NONCE_TTL_SEC`       | 600    | 10-minute nonce TTL        |
+| `MAX_PAYLOAD_BYTES`   | 16,384 | 16 KB payload hard limit   |
+| `MIN_NONCE_BYTES`     | 16     | Minimum nonce entropy      |
 
 ## Events
 
 ```typescript
-client.on("connect", () => { /* connected */ });
-client.on("disconnect", ({ code, reason }) => { /* disconnected */ });
-client.on("message", ({ raw, parsed, timestamp }) => { /* inbound message */ });
-client.on("error", ({ code, message, fatal }) => { /* protocol/transport error */ });
-client.on("reconnecting", ({ attempt, delayMs }) => { /* auto-reconnect */ });
+client.on("connect", () => {/* connected */});
+client.on("disconnect", ({ code, reason }) => {/* disconnected */});
+client.on("message", ({ raw, parsed, timestamp }) => {/* inbound message */});
+client.on(
+  "error",
+  ({ code, message, fatal }) => {/* protocol/transport error */},
+);
+client.on("reconnecting", ({ attempt, delayMs }) => {/* auto-reconnect */});
 ```
 
 ## Configuration
 
 ```typescript
 interface HXTPConfig {
-  url: string;                    // WebSocket URL
-  tenantId: string;               // Tenant UUID
-  deviceId: string;               // Device UUID
-  secret: string;                 // 64-char hex shared secret
-  previousSecret?: string;        // For key rotation window
-  clientId?: string;              // Client application ID
-  protocolVersion?: string;       // Default: "HxTP/2.2"
-  transport?: Transport;          // Default: WebSocket
-  crypto?: CryptoProvider;        // Default: auto-detected
-  replayProtection?: boolean;     // Default: true (Node) / false (browser)
-  maxMessageAgeSec?: number;      // Default: 300
-  timestampSkewSec?: number;      // Default: 60
-  autoReconnect?: boolean;        // Default: true
-  reconnectDelayMs?: number;      // Default: 1000
-  maxReconnectDelayMs?: number;   // Default: 30000
-  heartbeatIntervalMs?: number;   // Default: 30000
+  url: string; // WebSocket URL
+  tenantId: string; // Tenant UUID
+  deviceId: string; // Device UUID
+  secret: string; // 64-char hex shared secret
+  previousSecret?: string; // For key rotation window
+  clientId?: string; // Client application ID
+  protocolVersion?: string; // Default: "HxTP/3.0"
+  transport?: Transport; // Default: WebSocket
+  crypto?: CryptoProvider; // Default: auto-detected
+  replayProtection?: boolean; // Default: true (Node) / false (browser)
+  maxMessageAgeSec?: number; // Default: 300
+  timestampSkewSec?: number; // Default: 60
+  autoReconnect?: boolean; // Default: true
+  reconnectDelayMs?: number; // Default: 1000
+  maxReconnectDelayMs?: number; // Default: 30000
+  heartbeatIntervalMs?: number; // Default: 30000
 }
 ```
 
@@ -232,11 +242,11 @@ npm run typecheck    # TypeScript strict check
 
 ## Output Formats
 
-| Format | File           | Usage                        |
-| ------ | -------------- | ---------------------------- |
-| ESM    | `dist/*.js`    | `import { HXTPClient } from "hxtp-js"` |
-| CJS    | `dist/*.cjs`   | `const { HXTPClient } = require("hxtp-js")` |
-| Types  | `dist/*.d.ts`  | TypeScript type definitions   |
+| Format | File          | Usage                                       |
+| ------ | ------------- | ------------------------------------------- |
+| ESM    | `dist/*.js`   | `import { HXTPClient } from "hxtp-js"`      |
+| CJS    | `dist/*.cjs`  | `const { HXTPClient } = require("hxtp-js")` |
+| Types  | `dist/*.d.ts` | TypeScript type definitions                 |
 
 ## Versioning
 

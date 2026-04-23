@@ -1,6 +1,6 @@
 /**
  * @file types/protocol.ts
- * @description HxTP/2.2 protocol type definitions.
+ * @description HxTP/3.0 protocol type definitions.
  * All types are frozen and aligned with embedded SDK v1.0 + backend.
  *
  * Copyright (c) 2026 Hestia Labs
@@ -9,7 +9,7 @@
 
 /* ── Protocol Constants (FROZEN) ─────────────────────────────────────── */
 
-export const PROTOCOL_VERSION = "HxTP/2.2" as const;
+export const PROTOCOL_VERSION = "HxTP/3.0" as const;
 export const CANONICAL_SEPARATOR = "|" as const;
 export const MAX_MESSAGE_AGE_SEC = 300;
 export const TIMESTAMP_SKEW_SEC = 60;
