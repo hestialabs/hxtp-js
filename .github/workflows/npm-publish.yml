@@ -2,7 +2,7 @@
 #  HXTP JS SDK — CI & Publish Pipeline
 #
 #  • Lint, typecheck, test on every push/PR
-#  • Build and publish to GitHub Packages (npm) on push to main
+#  • Build and publish to NPM on push to main
 #  • Auto-detects version from package.json
 #  • Creates a GitHub Release with the published version
 #
@@ -21,7 +21,7 @@ on:
             - "tsconfig.json"
             - "tsup.config.ts"
             - "vitest.config.ts"
-            - "pnpm-lock.yaml"
+            - "bun.lock"
             - ".github/workflows/npm-publish.yml"
     pull_request:
         branches: [main]
@@ -32,7 +32,7 @@ on:
             - "tsconfig.json"
             - "tsup.config.ts"
             - "vitest.config.ts"
-            - "pnpm-lock.yaml"
+            - "bun.lock"
             - ".github/workflows/npm-publish.yml"
 
 jobs:
@@ -44,60 +44,46 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Install pnpm
-              uses: pnpm/action-setup@v4
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v2
               with:
-                  version: 9
-
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: "pnpm"
+                  bun-version: latest
 
             - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+              run: bun install --frozen-lockfile
 
             - name: Lint
-              run: pnpm lint
+              run: bun run lint
 
             - name: Typecheck
-              run: pnpm typecheck
+              run: bun run typecheck
 
             - name: Test
-              run: pnpm test
+              run: bun run test
 
-    # ── Build & Publish to GitHub Packages ───────────────────────────
+    # ── Build & Publish to NPM ───────────────────────────
     publish:
-        name: Publish to GitHub Packages
+        name: Publish to NPM
         needs: ci
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         permissions:
             contents: write
-            packages: write
+            id-token: write
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
 
-            - name: Install pnpm
-              uses: pnpm/action-setup@v4
+            - name: Install Bun
+              uses: oven-sh/setup-bun@v2
               with:
-                  version: 9
-
-            - name: Set up Node.js for GitHub Packages
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "22"
-                  cache: "pnpm"
-                  registry-url: "https://npm.pkg.github.com"
-                  scope: "@hestialabs"
+                  bun-version: latest
 
             - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+              run: bun install --frozen-lockfile
 
             - name: Build
-              run: pnpm build
+              run: bun run build
 
             - name: Read package version
               id: version
@@ -113,21 +99,19 @@ jobs:
                   PACKAGE_NAME=$(node -p "require('./package.json').name")
                   VERSION="${{ steps.version.outputs.version }}"
 
-                  if npm view "${PACKAGE_NAME}@${VERSION}" version 2>/dev/null; then
+                  if npm view "${PACKAGE_NAME}@${VERSION}" version --registry=https://registry.npmjs.org 2>/dev/null; then
                     echo "already_published=true" >> "$GITHUB_OUTPUT"
                     echo "Version ${VERSION} is already published — skipping publish."
                   else
                     echo "already_published=false" >> "$GITHUB_OUTPUT"
                     echo "Version ${VERSION} not yet published — will publish."
                   fi
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Publish to GitHub Packages
+            - name: Publish to NPM
               if: steps.check.outputs.already_published == 'false'
-              run: pnpm publish --no-git-checks --access public
+              run: bun publish --access public
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: Create GitHub Release
               if: steps.check.outputs.already_published == 'false'
@@ -138,7 +122,7 @@ jobs:
                   body: |
                       ## @hestialabs/hxtp-js ${{ steps.version.outputs.tag }}
 
-                      Published to [GitHub Packages](https://github.com/hestialabs/hxtp-js/packages).
+                      Published to [NPM](https://www.npmjs.com/package/@hestialabs/hxtp-js).
 
                       ### Install
 

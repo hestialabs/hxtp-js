@@ -23,14 +23,11 @@
 ## 📦 Installation
 
 ```bash
+# bun (recommended)
+bun add @hestialabs/hxtp-js
+
 # npm
 npm install @hestialabs/hxtp-js
-
-# pnpm
-pnpm add @hestialabs/hxtp-js
-
-# bun
-bun add @hestialabs/hxtp-js
 ```
 
 ---
@@ -148,6 +145,14 @@ The SDK is shipped in multiple formats to ensure compatibility with all modern t
 | **ESM** | `dist/*.js` | `import { HXTPClient } from "@hestialabs/hxtp-js"` |
 | **CJS** | `dist/*.cjs` | `const { HXTPClient } = require("@hestialabs/hxtp-js")` |
 | **Types** | `dist/*.d.ts` | Full TypeScript type definitions |
+
+## 🛠️ Development
+
+```bash
+bun install      # Install dependencies
+bun run build    # Build ESM/CJS/Types
+bun run test     # Run Vitest suite
+```
 
 ---
 

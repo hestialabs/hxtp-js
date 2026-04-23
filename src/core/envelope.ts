@@ -54,6 +54,7 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
         version: PROTOCOL_VERSION,
         message_type: messageType,
         device_id: deviceId,
+        tenant_id: tenantId,
         client_id: opts.clientId || "unknown-client",
         message_id: messageId,
         request_id: messageId, // outbound commands/messages use RID=MID
