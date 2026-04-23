@@ -1,7 +1,7 @@
 /**
  * @file types/protocol.ts
  * @description HxTP/3.0 protocol type definitions.
- * All types are frozen and aligned with embedded SDK v1.0 + backend.
+ * All types are frozen and aligned with embedded SDK v1.0.3 + backend.
  *
  * Copyright (c) 2026 Hestia Labs
  * SDK-License-Identifier: MIT

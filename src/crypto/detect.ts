@@ -40,7 +40,7 @@ export async function detectCrypto(): Promise<CryptoProvider> {
     throw new Error(
         "No supported crypto provider found. " +
             "Provide a CryptoProvider via config.crypto, or use " +
-            "hxtp-js/crypto/node or hxtp-js/crypto/web.",
+            "@hestialabs/hxtp-js/crypto/node or @hestialabs/hxtp-js/crypto/web.",
     );
 }
 

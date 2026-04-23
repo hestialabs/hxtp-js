@@ -2,14 +2,15 @@
  * @file core/canonical.ts
  * @description FROZEN canonical string builder for HxTP message signatures.
  *
- * Format: version|message_type|device_id|tenant_id|timestamp|message_id|nonce
+ * MCSS v3.0 FROZEN FORMAT (10 fields):
+ * version|did|cid|mid|rid|seq|ts|nonce|mtype|phash
  *
  * This format is FROZEN. Any change invalidates ALL signatures across
  * all deployed devices (embedded, backend, and client SDKs).
  *
  * Matches:
  *   - Backend:  src/protocol/Canonical.ts  → BuildCanonical()
- *   - Embedded: lib/HXTP/src/Validation.cpp → build_canonical_string()
+ *   - Embedded: src/Validation.cpp → build_canonical_string()
  *
  * Copyright (c) 2026 Hestia Labs
  * SDK-License-Identifier: MIT
