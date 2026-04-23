@@ -55,18 +55,19 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
         message_type: messageType,
         device_id: deviceId,
         tenant_id: tenantId,
-        timestamp,
+        client_id: opts.clientId || "unknown-client",
         message_id: messageId,
+        request_id: messageId, // outbound commands/messages use RID=MID
+        sequence_number: opts.sequence || 0,
+        timestamp,
         nonce,
+        payload_hash: payloadHash,
     };
 
     const signature = await signMessage(crypto, secretHex, msgFields);
 
     return {
         ...msgFields,
-        client_id: opts.clientId,
-        sequence_number: opts.sequence,
-        payload_hash: payloadHash,
         signature,
         params,
     };

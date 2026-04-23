@@ -1,6 +1,6 @@
 /**
  * @file index.ts
- * @description hxtp-js — HxTP/2.2 JavaScript/TypeScript Client SDK.
+ * @description hxtp-js — HxTP/3.0 JavaScript/TypeScript Client SDK.
  *
  * Public API surface. All exports are tree-shakeable.
  *

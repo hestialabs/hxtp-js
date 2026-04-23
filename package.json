@@ -1,9 +1,8 @@
 {
-    "name": "@hestialab/hxtp-js",
-    "version": "1.0.0",
-    "description": "HxTP/2.2 client SDK — HMAC-SHA256 signed protocol for IoT device communication. Browser, Node.js, Bun, Deno, React Native.",
+    "name": "@hestialabs/hxtp-js",
+    "version": "1.0.3",
+    "description": "HxTP/3.0 client SDK — HMAC-SHA256 signed protocol for IoT device communication. Browser, Node.js, Bun, Deno, React Native.",
     "publishConfig": {
-        "registry": "https://npm.pkg.github.com",
         "access": "public"
     },
     "type": "module",
@@ -82,20 +81,22 @@
     ],
     "author": "Hestia Labs",
     "license": "MIT",
-    "homepage": "https://github.com/hestialab/sdk",
+    "homepage": "https://github.com/hestialabs/hxtp-js",
     "repository": {
         "type": "git",
-        "url": "https://github.com/hestialab/sdk.git",
+        "url": "https://github.com/hestialabs/hxtp-js.git",
         "directory": "SDK/hxtp-js"
     },
     "engines": {
         "node": ">=18.0.0"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@types/node": "^25.3.0",
         "eslint": "^9.0.0",
         "tsup": "^8.4.0",
         "typescript": "^5.7.0",
+        "typescript-eslint": "^8.59.0",
         "vitest": "^3.0.0"
     }
 }

@@ -1,0 +1,90 @@
+# ═══════════════════════════════════════════════════════════════════
+#  HXTP JS SDK — CI & Auto-Publish Pipeline
+#
+#  • Runs CI (Lint, Test, Typecheck) on all PRs and pushes to main.
+#  • Auto-publishes to NPM and GitHub Releases on version tags (v*).
+#  • Uses Bun for high-performance builds and installation.
+#
+#  Copyright (c) 2026 Hestia Labs
+# ═══════════════════════════════════════════════════════════════════
+
+name: CI & Publish
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── CI: Quality Gates ───────────────────────────────────────────
+  ci:
+    name: CI (Lint, Typecheck, Test)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Test
+        run: bun run test
+
+  # ── Release: NPM & GitHub ───────────────────────────────────────
+  release:
+    name: Release to NPM & GitHub
+    needs: ci
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build SDK
+        run: bun run build
+
+      - name: Publish to NPM (Trusted Publishing)
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Fallback if OIDC is not configured on NPM yet
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "hxtp-js ${{ github.ref_name }}"
+          generate_release_notes: true
+          body: |
+            ## @hestialabs/hxtp-js ${{ github.ref_name }}
+
+            Professional HxTP/3.0 Client SDK for JavaScript and TypeScript.
+
+            ### Install
+            ```bash
+            bun add @hestialabs/hxtp-js
+            ```
+          make_latest: true
