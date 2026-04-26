@@ -13,15 +13,16 @@
  * - Numbers converted to strict decimal strings (avoids IEEE-754 divergence)
  * - Domain Separation: Inject "protocol": "hxtp/1.0"
  */
-export function canonicalJson(data: any): string {
+export function canonicalJson(data: unknown): string {
     // Top-level object injection for Domain Separation
     if (typeof data === "object" && data !== null && !Array.isArray(data)) {
-        if (!data.protocol) {
-            data = { ...data, protocol: "hxtp/1.0" };
+        const obj = data as Record<string, unknown>;
+        if (!obj.protocol) {
+            data = { ...obj, protocol: "hxtp/1.0" };
         }
     }
 
-    const serialize = (val: any): string => {
+    const serialize = (val: unknown): string => {
         if (val === null) return "null";
         if (typeof val === "boolean") return val ? "true" : "false";
         if (typeof val === "number") {
@@ -37,8 +38,9 @@ export function canonicalJson(data: any): string {
             return "[" + val.map(serialize).join(",") + "]";
         }
         if (typeof val === "object") {
-            const keys = Object.keys(val).sort();
-            const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(val[k])}`);
+            const obj = val as Record<string, unknown>;
+            const keys = Object.keys(obj).sort();
+            const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(obj[k])}`);
             return "{" + parts.join(",") + "}";
         }
         throw new Error(`CANONICAL_ERROR: Unsupported type ${typeof val}`);

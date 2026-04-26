@@ -41,7 +41,8 @@ export async function signMessage(
 
     const secretBytes = hexToBytes(secretHex);
     // Exclude signature from the signable payload if present
-    const { signature, ...signable } = msg as any;
+    const signable = { ...msg } as Record<string, unknown>;
+    delete signable.signature;
     const canonical = canonicalJson(signable);
     return crypto.signHmacSha256(secretBytes, canonical);
 }
