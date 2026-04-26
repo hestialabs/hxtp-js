@@ -18,6 +18,8 @@ export const MAX_PAYLOAD_BYTES = 16_384;
 export const HMAC_HEX_LENGTH = 64;
 export const SHA256_HEX_LENGTH = 64;
 export const MIN_NONCE_BYTES = 16;
+export const SECRET_BYTES = 32;
+export const SECRET_HEX_LENGTH = 64;
 
 /* ── Message Types ───────────────────────────────────────────────────── */
 
@@ -29,6 +31,7 @@ export const MessageType = {
     OTA: "ota",
     ACK: "ack",
     ERROR: "error",
+    HELLO: "hello",
 } as const;
 
 export type MessageTypeValue = (typeof MessageType)[keyof typeof MessageType];
@@ -44,6 +47,7 @@ export const Channel = {
     OTA: "ota",
     OTA_STATUS: "ota_status",
     TELEMETRY: "telemetry",
+    HELLO: "hello",
 } as const;
 
 export type ChannelValue = (typeof Channel)[keyof typeof Channel];
