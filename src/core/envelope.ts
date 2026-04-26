@@ -61,6 +61,8 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
         sequence_number: opts.sequence || 0,
         timestamp,
         nonce,
+        capability: opts.params?.capability as string | undefined,
+        action: opts.params?.action as string | undefined,
         payload_hash: payloadHash,
     };
 

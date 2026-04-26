@@ -63,6 +63,8 @@ export interface HXTPMessageHeader {
     readonly timestamp: number;
     readonly sequence_number?: number;
     readonly nonce: string;
+    readonly capability?: string;
+    readonly action?: string;
     readonly payload_hash: string;
     readonly signature: string;
 }
@@ -79,6 +81,8 @@ export interface HXTPEnvelope {
     readonly timestamp: number;
     readonly sequence_number?: number;
     readonly nonce: string;
+    readonly capability?: string;
+    readonly action?: string;
     readonly payload_hash: string;
     readonly signature: string;
     readonly params?: Record<string, unknown>;
