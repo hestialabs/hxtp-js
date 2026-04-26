@@ -11,14 +11,14 @@
  * - Lexicographical key sorting
  * - Unicode NFC normalization
  * - Numbers converted to strict decimal strings (avoids IEEE-754 divergence)
- * - Domain Separation: Inject "protocol": "hxtp/1.0"
+ * - Domain Separation: Inject "protocol": "hxtp/3.0"
  */
 export function canonicalJson(data: unknown): string {
     // Top-level object injection for Domain Separation
     if (typeof data === "object" && data !== null && !Array.isArray(data)) {
         const obj = data as Record<string, unknown>;
         if (!obj.protocol) {
-            data = { ...obj, protocol: "hxtp/1.0" };
+            data = { ...obj, protocol: "hxtp/3.0" };
         }
     }
 
