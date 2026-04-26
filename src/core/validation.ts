@@ -33,6 +33,7 @@ import {
     ProtocolError,
 } from "../types/protocol.js";
 import { verifySignatureWithFallback } from "./signing.js";
+import { canonicalJson } from "./canonical.js";
 import type { NonceCache } from "./nonce.js";
 
 interface ValidatableMessage {
@@ -109,7 +110,7 @@ export async function validateMessage(
 
     /* ── 3. Payload Size ─────────────────────────────────── */
     if (msg.params) {
-        const paramsStr = JSON.stringify(msg.params);
+        const paramsStr = canonicalJson(msg.params);
         if (paramsStr.length > MAX_PAYLOAD_BYTES) {
             return fail(
                 ProtocolError.PAYLOAD_TOO_LARGE,
@@ -131,7 +132,7 @@ export async function validateMessage(
 
     /* ── 5. Payload Hash ─────────────────────────────────── */
     if (msg.payload_hash) {
-        const paramsJson = JSON.stringify(msg.params ?? {});
+        const paramsJson = canonicalJson(msg.params ?? {});
         const computed = await opts.crypto.sha256Hex(paramsJson);
 
         if (computed !== msg.payload_hash) {

@@ -18,6 +18,22 @@
 
 import { CANONICAL_SEPARATOR } from "../types/protocol.js";
 
+/**
+ * Deterministic JSON stringifier.
+ * Sorts keys lexicographically and removes all whitespace.
+ */
+export function canonicalJson(data: any): string {
+    if (data === null || typeof data !== "object") {
+        return JSON.stringify(data);
+    }
+    if (Array.isArray(data)) {
+        return "[" + data.map(canonicalJson).join(",") + "]";
+    }
+    const keys = Object.keys(data).sort();
+    const parts = keys.map((k) => `"${k}":${canonicalJson(data[k])}`);
+    return "{" + parts.join(",") + "}";
+}
+
 interface CanonicalFields {
     readonly version?: string;
     readonly message_type?: string;

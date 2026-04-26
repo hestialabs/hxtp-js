@@ -12,6 +12,7 @@ import type { HXTPEnvelope, MessageTypeValue } from "../types/protocol.js";
 import { PROTOCOL_VERSION } from "../types/protocol.js";
 import { signMessage } from "./signing.js";
 import { generateNonce } from "./nonce.js";
+import { canonicalJson } from "./canonical.js";
 import { bytesToHex } from "../crypto/interface.js";
 
 interface EnvelopeParams {
@@ -47,7 +48,7 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
     const nonce = generateNonce(crypto);
     const timestamp = Date.now();
 
-    const paramsJson = JSON.stringify(params ?? {});
+    const paramsJson = canonicalJson(params ?? {});
     const payloadHash = await crypto.sha256Hex(paramsJson);
 
     const msgFields = {
