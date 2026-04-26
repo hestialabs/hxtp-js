@@ -81,6 +81,12 @@ jobs:
             echo "Version ${VERSION} not yet published — will publish."
           fi
 
+      - name: Configure NPM Authentication
+        if: steps.check.outputs.already_published == 'false'
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to NPM (Trusted Publishing)
         if: steps.check.outputs.already_published == 'false'
         run: npm publish --provenance --access public
