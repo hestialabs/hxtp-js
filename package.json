@@ -85,8 +85,7 @@
     "homepage": "https://github.com/hestialabs/hxtp-js",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/hestialabs/hxtp-js.git",
-        "directory": "SDK/hxtp-js"
+        "url": "https://github.com/hestialabs/hxtp-js"
     },
     "engines": {
         "node": ">=18.0.0"
