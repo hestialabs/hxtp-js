@@ -109,7 +109,7 @@ jobs:
           body: |
             ## @hestialabs/hxtp-js ${{ github.ref_name }}
 
-            Professional HxTP/3.0 Client SDK for JavaScript and TypeScript.
+            Official HxTP/3.0 Client SDK for JavaScript and TypeScript.
 
             ### Install
             ```bash
