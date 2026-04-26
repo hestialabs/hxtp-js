@@ -73,33 +73,25 @@ jobs:
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           VERSION=$(node -p "require('./package.json').version")
 
-          if npm view "${PACKAGE_NAME}@${VERSION}" version --registry=https://npm.pkg.github.com 2>/dev/null; then
+          if npm view "${PACKAGE_NAME}@${VERSION}" version --registry=https://registry.npmjs.org 2>/dev/null; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "Version ${VERSION} is already published to GitHub Packages — skipping."
+            echo "Version ${VERSION} is already published — skipping NPM publish."
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
-            echo "Version ${VERSION} not on GitHub Packages — will publish."
+            echo "Version ${VERSION} not yet published — will publish."
           fi
 
-      - name: Configure Registry Authentication
+      - name: Configure NPM Authentication
         if: steps.check.outputs.already_published == 'false'
-        run: |
-          echo "//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}" > .npmrc
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish to GitHub Packages
+      - name: Publish to NPM (Trusted Publishing)
         if: steps.check.outputs.already_published == 'false'
-        run: npm publish
-        # Note: registry is picked up from package.json publishConfig
-
-      - name: Publish to npmjs.org
-        if: steps.check.outputs.already_published == 'false'
-        run: npm publish --registry https://registry.npmjs.org --access public
+        run: npm publish --provenance --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -109,7 +101,7 @@ jobs:
           body: |
             ## @hestialabs/hxtp-js ${{ github.ref_name }}
 
-            Professional HxTP/3.0 Client SDK for JavaScript and TypeScript.
+            Official HxTP Client SDK for JavaScript and TypeScript.
 
             ### Install
             ```bash
