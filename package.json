@@ -3,7 +3,8 @@
     "version": "1.0.4",
     "description": "HxTP/3.0 client SDK — HMAC-SHA256 signed protocol for IoT device communication. Browser, Node.js, Bun, Deno, React Native.",
     "publishConfig": {
-        "access": "public"
+        "access": "public",
+        "registry": "https://npm.pkg.github.com"
     },
     "type": "module",
     "main": "./dist/index.cjs",
