@@ -48,3 +48,29 @@ export function canonicalJson(data: unknown): string {
 
     return serialize(data);
 }
+
+/**
+ * Legacy wrapper for CanonicalJSON (Production Grade).
+ */
+export function buildCanonical(data: unknown): string {
+    return canonicalJson(data);
+}
+
+/**
+ * Legacy helper (Deprecated — use JSON parsing).
+ */
+export function parseCanonical(canonical: string): Record<string, unknown> {
+    return JSON.parse(canonical);
+}
+
+/**
+ * Legacy helper (Deprecated).
+ */
+export function validateCanonical(canonical: string): boolean {
+    try {
+        JSON.parse(canonical);
+        return true;
+    } catch {
+        return false;
+    }
+}

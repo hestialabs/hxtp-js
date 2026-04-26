@@ -7,13 +7,13 @@
  * SDK-License-Identifier: MIT
  */
 
-/* ── Protocol Constants (FROZEN) ─────────────────────────────────────── */
+/* ── Protocol Constants (Production Grade) ───────────────────────────── */
 
 export const PROTOCOL_VERSION = "HxTP/3.0" as const;
 export const CANONICAL_SEPARATOR = "|" as const;
-export const MAX_MESSAGE_AGE_SEC = 300;
-export const TIMESTAMP_SKEW_SEC = 60;
-export const NONCE_TTL_SEC = 600;
+export const MAX_MESSAGE_AGE_SEC = 30;
+export const TIMESTAMP_SKEW_SEC = 5;
+export const NONCE_TTL_SEC = 60;
 export const MAX_PAYLOAD_BYTES = 16_384;
 export const HMAC_HEX_LENGTH = 64;
 export const SHA256_HEX_LENGTH = 64;
@@ -47,7 +47,6 @@ export const Channel = {
     OTA: "ota",
     OTA_STATUS: "ota_status",
     TELEMETRY: "telemetry",
-    HELLO: "hello",
 } as const;
 
 export type ChannelValue = (typeof Channel)[keyof typeof Channel];
