@@ -7,31 +7,42 @@
  */
 
 /**
- * Deterministic JSON stringifier.
+ * Deterministic JSON stringifier (Production Grade).
  * - Lexicographical key sorting
  * - Unicode NFC normalization
- * - Stable number formatting
- * - Explicit null/boolean/UTF-8
+ * - Numbers converted to strict decimal strings (avoids IEEE-754 divergence)
+ * - Domain Separation: Inject "protocol": "hxtp/1.0"
  */
 export function canonicalJson(data: any): string {
-    if (data === null) return "null";
-    if (typeof data === "boolean") return data ? "true" : "false";
-    if (typeof data === "number") {
-        if (!Number.isFinite(data)) throw new Error("CANONICAL_ERROR: Non-finite number");
-        const s = data.toString();
-        if (s.includes("e")) return data.toFixed(20).replace(/\.?0+$/, "");
-        return s;
+    // Top-level object injection for Domain Separation
+    if (typeof data === "object" && data !== null && !Array.isArray(data)) {
+        if (!data.protocol) {
+            data = { ...data, protocol: "hxtp/1.0" };
+        }
     }
-    if (typeof data === "string") {
-        return JSON.stringify(data.normalize("NFC"));
-    }
-    if (Array.isArray(data)) {
-        return "[" + data.map(canonicalJson).join(",") + "]";
-    }
-    if (typeof data === "object") {
-        const keys = Object.keys(data).sort();
-        const parts = keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(data[k])}`);
-        return "{" + parts.join(",") + "}";
-    }
-    throw new Error(`CANONICAL_ERROR: Unsupported type ${typeof data}`);
+
+    const serialize = (val: any): string => {
+        if (val === null) return "null";
+        if (typeof val === "boolean") return val ? "true" : "false";
+        if (typeof val === "number") {
+            if (!Number.isFinite(val)) throw new Error("CANONICAL_ERROR: Non-finite number");
+            // Bit-perfect cross-platform number strategy: Canonical Decimal String
+            const s = val.toFixed(20).replace(/\.?0+$/, "");
+            return `"${s}"`;
+        }
+        if (typeof val === "string") {
+            return JSON.stringify(val.normalize("NFC"));
+        }
+        if (Array.isArray(val)) {
+            return "[" + val.map(serialize).join(",") + "]";
+        }
+        if (typeof val === "object") {
+            const keys = Object.keys(val).sort();
+            const parts = keys.map((k) => `${JSON.stringify(k)}:${serialize(val[k])}`);
+            return "{" + parts.join(",") + "}";
+        }
+        throw new Error(`CANONICAL_ERROR: Unsupported type ${typeof val}`);
+    };
+
+    return serialize(data);
 }
