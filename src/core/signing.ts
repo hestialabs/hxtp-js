@@ -1,7 +1,6 @@
 /**
  * @file core/signing.ts
  * @description HMAC-SHA256 message signing and verification.
- * Matches backend SecurityModule.ts and embedded Core.cpp signing logic.
  *
  * Copyright (c) 2026 Hestia Labs
  * SDK-License-Identifier: MIT
@@ -9,7 +8,7 @@
 
 import type { CryptoProvider } from "../crypto/interface.js";
 import { constantTimeEqual, hexToBytes } from "../crypto/interface.js";
-import { buildCanonical } from "./canonical.js";
+import { canonicalJson } from "./canonical.js";
 import { HMAC_HEX_LENGTH } from "../types/protocol.js";
 
 interface SignableMessage {
@@ -41,7 +40,9 @@ export async function signMessage(
     }
 
     const secretBytes = hexToBytes(secretHex);
-    const canonical = buildCanonical(msg);
+    // Exclude signature from the signable payload if present
+    const { signature, ...signable } = msg as any;
+    const canonical = canonicalJson(signable);
     return crypto.signHmacSha256(secretBytes, canonical);
 }
 

@@ -1,7 +1,6 @@
 /**
  * @file core/envelope.ts
  * @description Constructs signed HxTP message envelopes.
- * Matches backend CommandEngine.ts and embedded Core.cpp build logic.
  *
  * Copyright (c) 2026 Hestia Labs
  * SDK-License-Identifier: MIT
