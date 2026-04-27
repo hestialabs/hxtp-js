@@ -7,7 +7,7 @@
  */
 
 /**
- * Deterministic JSON stringifier (Production Grade).
+ * Deterministic JSON stringifier ().
  * - Lexicographical key sorting
  * - Unicode NFC normalization
  * - Numbers converted to strict decimal strings (avoids IEEE-754 divergence)
@@ -50,7 +50,7 @@ export function canonicalJson(data: unknown): string {
 }
 
 /**
- * Legacy wrapper for CanonicalJSON (Production Grade).
+ * Legacy wrapper for CanonicalJSON ().
  */
 export function buildCanonical(data: unknown): string {
     return canonicalJson(data);

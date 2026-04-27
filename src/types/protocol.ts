@@ -7,7 +7,7 @@
  * SDK-License-Identifier: MIT
  */
 
-/* ── Protocol Constants (Production Grade) ───────────────────────────── */
+/* ── Protocol Constants () ───────────────────────────── */
 
 export const PROTOCOL_VERSION = "HxTP/3.0" as const;
 export const CANONICAL_SEPARATOR = "|" as const;
