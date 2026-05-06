@@ -27,13 +27,14 @@ import type { CryptoProvider } from "../crypto/interface.js";
 import type { ValidationResult } from "../types/protocol.js";
 import {
     PROTOCOL_VERSION,
+    LEGACY_PROTOCOL_VERSION,
     MAX_MESSAGE_AGE_SEC,
     TIMESTAMP_SKEW_SEC,
     MAX_PAYLOAD_BYTES,
     ProtocolError,
 } from "../types/protocol.js";
 import { verifySignatureWithFallback } from "./signing.js";
-import { canonicalJson } from "./canonical.js";
+import { canonicalParamsJson } from "./canonical.js";
 import type { NonceCache } from "./nonce.js";
 
 interface ValidatableMessage {
@@ -82,7 +83,7 @@ export async function validateMessage(
 
     /* ── 1. Version ──────────────────────────────────────── */
     const version = msg.version || msg.protocol_version || "";
-    if (version !== PROTOCOL_VERSION) {
+    if (version !== PROTOCOL_VERSION && version !== LEGACY_PROTOCOL_VERSION) {
         return fail(ProtocolError.VERSION_MISMATCH, `Unsupported version: ${version}`);
     }
 
@@ -110,7 +111,7 @@ export async function validateMessage(
 
     /* ── 3. Payload Size ─────────────────────────────────── */
     if (msg.params) {
-        const paramsStr = canonicalJson(msg.params);
+        const paramsStr = canonicalParamsJson(msg.params);
         if (paramsStr.length > MAX_PAYLOAD_BYTES) {
             return fail(
                 ProtocolError.PAYLOAD_TOO_LARGE,
@@ -132,7 +133,7 @@ export async function validateMessage(
 
     /* ── 5. Payload Hash ─────────────────────────────────── */
     if (msg.payload_hash) {
-        const paramsJson = canonicalJson(msg.params ?? {});
+        const paramsJson = canonicalParamsJson(msg.params ?? {});
         const computed = await opts.crypto.sha256Hex(paramsJson);
 
         if (computed !== msg.payload_hash) {

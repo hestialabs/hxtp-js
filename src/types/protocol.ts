@@ -9,7 +9,8 @@
 
 /* ── Protocol Constants () ───────────────────────────── */
 
-export const PROTOCOL_VERSION = "HxTP/3.0" as const;
+export const PROTOCOL_VERSION = "HxTP/3.1" as const;
+export const LEGACY_PROTOCOL_VERSION = "HxTP/3.0" as const;
 export const CANONICAL_SEPARATOR = "|" as const;
 export const MAX_MESSAGE_AGE_SEC = 30;
 export const TIMESTAMP_SKEW_SEC = 5;
@@ -67,6 +68,19 @@ export interface HXTPMessageHeader {
     readonly action?: string;
     readonly payload_hash: string;
     readonly signature: string;
+}
+
+export interface HXTPCanonicalFields {
+    readonly version: string;
+    readonly device_id: string;
+    readonly client_id: string;
+    readonly message_id: string;
+    readonly request_id: string;
+    readonly sequence_number: number;
+    readonly timestamp: number;
+    readonly nonce: string;
+    readonly message_type: string;
+    readonly payload_hash: string;
 }
 
 /* ── Outbound Envelope (pre-signature) ───────────────────────────────── */

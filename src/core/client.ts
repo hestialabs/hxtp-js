@@ -59,6 +59,7 @@ export class HXTPClient {
         if (!config.url) throw new Error("config.url is required");
         if (!config.tenantId) throw new Error("config.tenantId is required");
         if (!config.deviceId) throw new Error("config.deviceId is required");
+        if (!config.clientId) throw new Error("config.clientId is required");
         if (!config.secret) throw new Error("config.secret is required");
         if (config.secret.length !== 64) {
             throw new Error("config.secret must be a 64-character hex string");
@@ -119,6 +120,11 @@ export class HXTPClient {
         if (!this.crypto) {
             throw new Error("Crypto provider not initialized");
         }
+        if (this.transport instanceof WebSocketTransport) {
+            throw new Error(
+                "HxTP command execution over WebSocket is not supported by the backend; use REST or MQTT ingress.",
+            );
+        }
 
         this.sequence++;
 
@@ -129,7 +135,8 @@ export class HXTPClient {
             tenantId: this.config.tenantId,
             clientId: this.config.clientId,
             messageType: MessageType.COMMAND,
-            params: { action: payload.action, ...payload.params },
+            action: payload.action,
+            params: payload.params,
             sequence: this.sequence,
         });
 

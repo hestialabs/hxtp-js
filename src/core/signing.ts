@@ -8,7 +8,7 @@
 
 import type { CryptoProvider } from "../crypto/interface.js";
 import { constantTimeEqual, hexToBytes } from "../crypto/interface.js";
-import { canonicalJson } from "./canonical.js";
+import { canonicalJson, pipeCanonical } from "./canonical.js";
 import { HMAC_HEX_LENGTH } from "../types/protocol.js";
 
 interface SignableMessage {
@@ -43,7 +43,10 @@ export async function signMessage(
     // Exclude signature from the signable payload if present
     const signable = { ...msg } as Record<string, unknown>;
     delete signable.signature;
-    const canonical = canonicalJson(signable);
+    const canonical =
+        signable.version === "HxTP/3.1"
+            ? pipeCanonical(signable as Parameters<typeof pipeCanonical>[0])
+            : canonicalJson(signable);
     return crypto.signHmacSha256(secretBytes, canonical);
 }
 

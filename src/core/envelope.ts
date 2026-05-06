@@ -11,7 +11,7 @@ import type { HXTPEnvelope, MessageTypeValue } from "../types/protocol.js";
 import { PROTOCOL_VERSION } from "../types/protocol.js";
 import { signMessage } from "./signing.js";
 import { generateNonce } from "./nonce.js";
-import { canonicalJson } from "./canonical.js";
+import { canonicalParamsJson } from "./canonical.js";
 import { bytesToHex } from "../crypto/interface.js";
 
 interface EnvelopeParams {
@@ -19,8 +19,9 @@ interface EnvelopeParams {
     readonly secretHex: string;
     readonly deviceId: string;
     readonly tenantId: string;
-    readonly clientId?: string;
+    readonly clientId: string;
     readonly messageType: MessageTypeValue;
+    readonly action?: string;
     readonly params?: Record<string, unknown>;
     readonly sequence?: number;
 }
@@ -47,7 +48,11 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
     const nonce = generateNonce(crypto);
     const timestamp = Date.now();
 
-    const paramsJson = canonicalJson(params ?? {});
+    if (!opts.clientId) {
+        throw new Error("clientId is required and must be a UUID string.");
+    }
+
+    const paramsJson = canonicalParamsJson(params ?? {});
     const payloadHash = await crypto.sha256Hex(paramsJson);
 
     const msgFields = {
@@ -55,14 +60,14 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
         message_type: messageType,
         device_id: deviceId,
         tenant_id: tenantId,
-        client_id: opts.clientId || "unknown-client",
+        client_id: opts.clientId,
         message_id: messageId,
         request_id: messageId, // outbound commands/messages use RID=MID
         sequence_number: opts.sequence || 0,
         timestamp,
         nonce,
         capability: opts.params?.capability as string | undefined,
-        action: opts.params?.action as string | undefined,
+        action: opts.action,
         payload_hash: payloadHash,
     };
 

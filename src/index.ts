@@ -17,7 +17,14 @@ export { HXTPClient } from "./core/client.js";
 
 /* ── Core Functions ──────────────────────────────────────────────────── */
 
-export { canonicalJson, buildCanonical, parseCanonical, validateCanonical } from "./core/canonical.js";
+export {
+    canonicalJson,
+    canonicalParamsJson,
+    pipeCanonical,
+    buildCanonical,
+    parseCanonical,
+    validateCanonical,
+} from "./core/canonical.js";
 
 export { signMessage, verifySignature, verifySignatureWithFallback } from "./core/signing.js";
 
