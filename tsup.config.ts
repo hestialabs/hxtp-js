@@ -7,6 +7,7 @@ export default defineConfig([
             "crypto/node": "src/crypto/node.ts",
             "crypto/web": "src/crypto/web.ts",
             "transport/websocket": "src/transport/websocket.ts",
+            "transport/mqtt": "src/transport/mqtt.ts",
         },
         format: ["esm", "cjs"],
         dts: true,
