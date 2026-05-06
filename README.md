@@ -1,22 +1,21 @@
 # 🛡️ hxtp-js
 
-[![Version](https://img.shields.io/badge/version-1.0.3-blue.svg)](https://github.com/hestialabs/hxtp-js)
+[![Version](https://img.shields.io/badge/version-1.0.7-blue.svg)](https://github.com/hestialabs/hxtp-js)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Environment](https://img.shields.io/badge/env-Browser%20%7C%20Node%20%7C%20Bun-orange.svg)](https://nodejs.org/)
-[![Tree-shakeable](https://img.shields.io/badge/tree--shakeable-yes-brightgreen.svg)](https://developer.mozilla.org/en-US/docs/Glossary/Tree_shaking)
 
-**HxTP/3.0** JavaScript/TypeScript Client SDK — A  high-performance implementation of the HMAC-SHA256 signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
+**HxTP/3.1** JavaScript/TypeScript Client SDK — A high-performance implementation of the HMAC-SHA256 signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
 
 ---
 
 ## 🚀 Key Features
 
 - **⚡ Lightweight**: Zero runtime dependencies. Tree-shakeable ESM build.
-- **🔐 Hardened Security**: Full 6-step client-side validation pipeline. Mandatory HMAC-SHA256 signatures.
+- **🔐 HxTP/3.1 Core**: Pipe-separated framing with mandatory backslash escaping and NFC normalization.
+- **📡 Native MQTT**: High-performance transport support via `MQTTTransport`.
 - **🌐 Universal**: Works in **Browser**, **Node.js 18+**, **Bun**, **Deno**, and **React Native**.
-- **🛡️ Anti-Replay**: Integrated nonce generation and replay protection.
-- **🔌 Pluggable**: Customizable transport (WebSocket/MQTT) and crypto providers.
-- **🧩 TypeScript First**: Native type definitions for a superior developer experience.
+- **🛡️ Anti-Replay**: Integrated nonce generation and monotonic sequence enforcement.
+- **🔌 Pluggable**: Customizable transport (MQTT/REST/WS) and crypto providers.
 
 ---
 
@@ -34,33 +33,32 @@ npm install @hestialabs/hxtp-js
 
 ## ⏱️ Quick Start
 
-### Node.js / Bun
+### Native MQTT Command Execution
 
 ```typescript
-import { HXTPClient } from "@hestialabs/hxtp-js";
+import { Client } from "@hestialabs/hxtp-js";
+import { MQTTTransport } from "@hestialabs/hxtp-js/transport/mqtt";
+import { NodeCryptoProvider } from "@hestialabs/hxtp-js/crypto/node";
 
-const client = new HXTPClient({
-  url: "wss://mqtt.example.com/ws/state",
+const client = new Client({
+  url: "https://api.hestialabs.in/api/v1",
   tenantId: "your-tenant-uuid",
   deviceId: "your-device-uuid",
-  secret: "64-char-hex-secret-here...",
+  clientId: "unique-client-id",
+  secret: "64-char-hex-secret",
+  crypto: new NodeCryptoProvider()
 });
 
-client.on("connect", () => console.log("🛡️ HXTP Connected"));
-client.on("message", (event) => console.log("📩 Message:", event.parsed));
-client.on("error", (event) => console.error("⚠️ Error:", event.code, event.message));
+// Use native MQTT for sub-millisecond dispatch
+const mqtt = new MQTTTransport({ url: "tcp://broker.hestialabs.in:1883" });
+client.setTransport(mqtt);
 
-await client.connect();
+await mqtt.connect();
 
-// Send a signed command
-const response = await client.sendCommand({
-  action: "set_brightness",
-  params: { value: 80 },
-});
+// Send a signed command via MQTT
+const response = await client.sendCommand("light-1", "toggle", { power: true });
 
 console.log("✅ Command Sent:", response.messageId);
-
-await client.disconnect();
 ```
 
 ---
@@ -72,86 +70,40 @@ The SDK is built with a strictly modular architecture to support diverse environ
 ```text
 hxtp-js
 ├── core/           Protocol-agnostic core logic
-│   ├── canonical   FROZEN canonical string builder
+│   ├── canonical   HxTP/3.1 Pipe-separated builder
 │   ├── signing     HMAC-SHA256 signature engine
-│   ├── validation  6-step client-side validation pipeline
+│   ├── validation  7-step protocol validation pipeline
 │   ├── envelope    Signed message envelope builder
-│   ├── nonce       Replay protection & nonce management
-│   └── topics      MQTT topic orchestration
+│   └── nonce       Replay protection & nonce management
 ├── crypto/         Environment-aware crypto providers
 │   ├── node        Node.js native (node:crypto)
-│   ├── web         Web Crypto API (Browser/RN/Deno)
-│   └── detect      Intelligent auto-detection
+│   └── web         Web Crypto API (Browser/RN/Deno)
 └── transport/      Pluggable transport layer
-    └── websocket   Default WebSocket implementation
+    ├── mqtt        Native MQTT transport
+    └── websocket   Secure WebSocket implementation
 ```
 
 ---
 
-## 🔐 Protocol Alignment: MCSS v3.0
+## 🔐 Protocol Alignment: HxTP/3.1
 
-This SDK implements HxTP/3.0 with **exact parity** to the Backend and Embedded C++ SDKs.
+This SDK implements HxTP/3.1 with **bit-perfect parity** to the Go, Python, and Embedded SDKs.
 
 | Component | Status | Details |
 | :--- | :--- | :--- |
-| **Canonical String** | ✅ | FROZEN format for cross-platform signature parity. |
-| **HMAC-SHA256** | ✅ | Constant-time verification for security. |
-| **Dual-Key Rotation** | ✅ | Seamless secret migration window support. |
-| **Validation** | ✅ | Strict 6-step client-side security pipeline. |
-
-### Security Constants
-
-| Constant | Value | Description |
-| :--- | :--- | :--- |
-| `MAX_MESSAGE_AGE_SEC` | 300 | 5-minute message expiry |
-| `TIMESTAMP_SKEW_SEC` | 60 | 1-minute future clock skew tolerance |
-| `NONCE_TTL_SEC` | 600 | 10-minute nonce persistence |
-| `MAX_PAYLOAD_BYTES` | 16,384 | 16 KB payload hard limit |
+| **Framing** | ✅ | Pipe-separated (`\|`) with mandatory backslash escaping. |
+| **Normalization** | ✅ | Mandatory **Unicode NFC** normalization for all fields. |
+| **Numbers** | ✅ | Deterministic decimal strings (up to 20 places). |
+| **Compliance** | ✅ | Verified against the cross-language compliance suite. |
 
 ---
 
-## 📡 Events
+## 📄 License
 
-```typescript
-client.on("connect", () => { /* Connection established */ });
-client.on("disconnect", ({ code, reason }) => { /* Connection closed */ });
-client.on("message", ({ raw, parsed, timestamp }) => { /* Validated inbound message */ });
-client.on("error", ({ code, message, fatal }) => { /* Protocol or transport error */ });
-client.on("reconnecting", ({ attempt, delayMs }) => { /* Auto-reconnect status */ });
-```
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
----
-
-## 🛠️ Configuration
-
-| Option | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `url` | `string` | - | WebSocket URL of the HXTP Gateway |
-| `tenantId` | `string` | - | Your unique Tenant UUID |
-| `deviceId` | `string` | - | The target Device UUID |
-| `secret` | `string` | - | 64-character hex shared secret |
-| `crypto` | `CryptoProvider` | Auto | Override auto-detected crypto backend |
-| `autoReconnect` | `boolean` | `true` | Enable automatic reconnection |
-| `heartbeatMs` | `number` | `30000` | Heartbeat interval in milliseconds |
-
----
-
-## 📦 Output Formats
-
-The SDK is shipped in multiple formats to ensure compatibility with all modern toolchains.
-
-| Format | File | Usage |
-| :--- | :--- | :--- |
-| **ESM** | `dist/*.js` | `import { HXTPClient } from "@hestialabs/hxtp-js"` |
-| **CJS** | `dist/*.cjs` | `const { HXTPClient } = require("@hestialabs/hxtp-js")` |
-| **Types** | `dist/*.d.ts` | Full TypeScript type definitions |
-
-## 🛠️ Development
-
-```bash
-bun install      # Install dependencies
-bun run build    # Build ESM/CJS/Types
-bun run test     # Run Vitest suite
+Copyright © 2026 **Hestia Labs**
+run test     # Run Vitest suite
 ```
 
 ---

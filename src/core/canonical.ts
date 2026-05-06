@@ -84,7 +84,20 @@ export function canonicalParamsJson(data: unknown): string {
 }
 
 /**
+ * Escape a field for HxTP/3.1 pipe-separated framing.
+ */
+export function escapeField(s: string): string {
+    return s
+        .normalize("NFC")
+        .replace(/\\/g, "\\\\")
+        .replace(/\|/g, "\\|")
+        .replace(/\n/g, "\\n")
+        .replace(/\r/g, "\\r");
+}
+
+/**
  * HxTP/3.1 protocol signing canonical: 10 pipe-separated fields.
+ * Implements mandatory backslash escaping and NFC normalization.
  */
 export function pipeCanonical(msg: {
     readonly version: string;
@@ -98,7 +111,7 @@ export function pipeCanonical(msg: {
     readonly message_type: string;
     readonly payload_hash: string;
 }): string {
-    return [
+    const fields = [
         msg.version,
         msg.device_id,
         msg.client_id,
@@ -109,7 +122,9 @@ export function pipeCanonical(msg: {
         msg.nonce,
         msg.message_type,
         msg.payload_hash,
-    ].join("|");
+    ];
+
+    return fields.map(escapeField).join("|");
 }
 
 /**
