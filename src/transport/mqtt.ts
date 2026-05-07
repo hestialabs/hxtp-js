@@ -52,7 +52,11 @@ export class MQTTTransport implements Transport {
                 resolve();
             });
 
-            this.client!.on("message", (topic, payload) => {
+            this.client!.on("message", (topic: string, payload: Buffer) => {
+                const expectedPrefix = this.options.topicPrefix ?? "hxtp";
+                if (!topic.startsWith(expectedPrefix)) {
+                    return; // Silently ignore messages from unexpected topics
+                }
                 if (this.messageHandler) {
                     this.messageHandler(payload.toString());
                 }
