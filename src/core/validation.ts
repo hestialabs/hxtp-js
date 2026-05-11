@@ -33,7 +33,7 @@ import {
     MAX_PAYLOAD_BYTES,
     ProtocolError,
 } from "../types/protocol.js";
-import { verifySignatureWithFallback } from "./signing.js";
+import { verifySignatureWithFallback, type SignableMessage } from "./signing.js";
 import { canonicalParamsJson } from "./canonical.js";
 import type { NonceCache } from "./nonce.js";
 
@@ -152,23 +152,7 @@ export async function validateMessage(
         opts.crypto,
         opts.activePublicKey,
         opts.previousPublicKey,
-        msg as Required<
-            Pick<
-                ValidatableMessage,
-                | "version"
-                | "message_type"
-                | "device_id"
-                | "tenant_id"
-                | "client_id"
-                | "message_id"
-                | "request_id"
-                | "sequence_number"
-                | "timestamp"
-                | "nonce"
-                | "payload_hash"
-            >
-        > &
-        Record<string, unknown>,
+        msg as unknown as SignableMessage,
         msg.signature,
     );
 

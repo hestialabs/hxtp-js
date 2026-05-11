@@ -7,10 +7,8 @@
  */
 
 import {
-    createHmac,
     createHash,
     randomBytes as nodeRandomBytes,
-    timingSafeEqual,
     sign as nodeSign,
     verify as nodeVerify,
     createPrivateKey,
@@ -22,12 +20,6 @@ import { bytesToHex } from "./interface.js";
 export { constantTimeEqual, hexToBytes, bytesToHex } from "./interface.js";
 
 class NodeCryptoProvider implements CryptoProvider {
-    async signHmacSha256(secret: Uint8Array, data: string): Promise<string> {
-        const hmac = createHmac("sha256", secret);
-        hmac.update(data, "utf8");
-        return hmac.digest("hex");
-    }
-
     async signEd25519(privateKey: Uint8Array, data: string): Promise<string> {
         // Node.js requires PKCS8 wrapping for raw Ed25519 seeds
         const pkcs8Header = Buffer.from([
@@ -69,16 +61,6 @@ class NodeCryptoProvider implements CryptoProvider {
 
 /** Singleton Node.js crypto provider. */
 export const nodeCrypto: CryptoProvider = new NodeCryptoProvider();
-
-/**
- * Constant-time comparison using Node.js `timingSafeEqual`.
- * Preferred over the platform-agnostic version when available.
- * Uses static ESM import — no CJS require() leakage.
- */
-export function nodeConstantTimeEqual(a: string, b: string): boolean {
-    if (a.length !== b.length) return false;
-    return timingSafeEqual(Buffer.from(a, "utf8"), Buffer.from(b, "utf8"));
-}
 
 /**
  * Generate a nonce as hex string (min 16 raw bytes → 32 hex chars).

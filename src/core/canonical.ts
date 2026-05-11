@@ -129,31 +129,4 @@ export function pipeCanonical(msg: {
     return fields.map(escapeField).join("|");
 }
 
-/**
- * Legacy wrapper for CanonicalJSON ().
- */
-export function buildCanonical(data: unknown): string {
-    if (typeof data === "object" && data !== null && "payload_hash" in data) {
-        return pipeCanonical(data as Parameters<typeof pipeCanonical>[0]);
-    }
-    return canonicalJson(data);
-}
 
-/**
- * Legacy helper (Deprecated — use JSON parsing).
- */
-export function parseCanonical(canonical: string): Record<string, unknown> {
-    return JSON.parse(canonical);
-}
-
-/**
- * Legacy helper (Deprecated).
- */
-export function validateCanonical(canonical: string): boolean {
-    try {
-        JSON.parse(canonical);
-        return true;
-    } catch {
-        return false;
-    }
-}

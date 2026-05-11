@@ -31,19 +31,6 @@ function getCrypto(): Crypto {
 const encoder = new TextEncoder();
 
 class WebCryptoProvider implements CryptoProvider {
-    async signHmacSha256(secret: Uint8Array, data: string): Promise<string> {
-        const subtle = getSubtle();
-        const key = await subtle.importKey(
-            "raw",
-            secret.buffer as ArrayBuffer,
-            { name: "HMAC", hash: "SHA-256" },
-            false,
-            ["sign"],
-        );
-        const sig = await subtle.sign("HMAC", key, encoder.encode(data));
-        return bytesToHex(new Uint8Array(sig));
-    }
-
     async signEd25519(privateKey: Uint8Array, data: string): Promise<string> {
         const subtle = getSubtle();
         const key = await subtle.importKey(

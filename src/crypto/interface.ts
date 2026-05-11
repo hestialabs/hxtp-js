@@ -9,13 +9,6 @@
 
 export interface CryptoProvider {
     /**
-     * Compute HMAC-SHA256 and return lowercase hex string (64 chars).
-     * @param secret - Raw secret bytes.
-     * @param data - UTF-8 string to sign.
-     */
-    signHmacSha256(secret: Uint8Array, data: string): Promise<string>;
-
-    /**
      * Compute SHA-256 hash and return lowercase hex string (64 chars).
      * @param data - UTF-8 string to hash.
      */

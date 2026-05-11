@@ -3,7 +3,11 @@
  * @description HXTPClient — the public API for HxTP protocol communication.
  *
  * Features:
- *   - Signed message construction (HMAC-SHA256)
+ *   - Ed25519 signed message construction (HxTP/3.1)
+ *   - 11-field pipe-delimited canonical string (HxTP/3.1)
+ *   - HELLO/HELLO_ACK lifecycle handshake
+ *   - ACTIVE-state gating for command/message dispatch
+ *   - Bootstrap/enrollment flow
  *   - Pluggable transport (WebSocket default)
  *   - Auto-reconnect with exponential backoff
  *   - Heartbeat keepalive
@@ -34,6 +38,8 @@ import { NonceCache } from "./nonce.js";
 import { detectCrypto, detectReplayDefault } from "../crypto/detect.js";
 import { WebSocketTransport } from "../transport/websocket.js";
 
+type LifecycleState = "IDLE" | "HELLO_SENT" | "ACTIVE" | "DISCONNECTED";
+
 type EventMap = {
     connect: void;
     disconnect: { code: number; reason: string };
@@ -52,6 +58,7 @@ export class HXTPClient {
     private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     private reconnectAttempt = 0;
     private destroyed = false;
+    private lifecycle: LifecycleState = "IDLE";
 
     private readonly listeners = new Map<HXTPEventType, Set<HXTPEventHandler<unknown>>>();
 
@@ -67,7 +74,7 @@ export class HXTPClient {
         this.config = config;
     }
 
-    /** Connect to the server. Resolves when the connection is established. */
+    /** Connect to the server. Sends HELLO and waits for HELLO_ACK. */
     async connect(): Promise<void> {
         if (this.destroyed) throw new Error("Client has been destroyed");
 
@@ -86,13 +93,35 @@ export class HXTPClient {
 
         await this.transport.connect();
         this.reconnectAttempt = 0;
-        this.startHeartbeat();
-        this.emit("connect", undefined);
+        this.lifecycle = "HELLO_SENT";
+
+        await this.sendHello();
+    }
+
+    /** Send HELLO message with device identity (public key). */
+    private async sendHello(): Promise<void> {
+        if (!this.crypto) throw new Error("Crypto provider not initialized");
+        const envelope = await buildEnvelope({
+            crypto: this.crypto,
+            signingKeyHex: this.config.signingKey,
+            deviceId: this.config.deviceId,
+            tenantId: this.config.tenantId,
+            clientId: this.config.clientId,
+            messageType: MessageType.HELLO,
+            params: {
+                public_key: this.config.serverPublicKey,
+                descriptor_hash: this.config.deviceId,
+            },
+            sequence: 0,
+        });
+
+        await this.transport!.send(JSON.stringify(envelope));
     }
 
     /** Disconnect gracefully and release resources. */
     async disconnect(): Promise<void> {
         this.destroyed = true;
+        this.lifecycle = "DISCONNECTED";
         this.stopHeartbeat();
         this.stopReconnect();
 
@@ -108,12 +137,15 @@ export class HXTPClient {
      * Send a signed command to the server.
      *
      * Constructs a fully signed HxTP envelope with:
-     *   - HMAC-SHA256 signature over frozen canonical string
+     *   - Ed25519 signature over 11-field canonical string
      *   - SHA-256 payload hash
      *   - Cryptographic nonce
      *   - Monotonic sequence number
      */
     async sendCommand(payload: HXTPCommandPayload): Promise<HXTPResponse> {
+        if (this.lifecycle !== "ACTIVE") {
+            throw new Error("Cannot send command: lifecycle is not ACTIVE");
+        }
         if (!this.transport || this.transport.state !== "connected") {
             throw new Error("Not connected");
         }
@@ -163,14 +195,19 @@ export class HXTPClient {
         this.listeners.get(event)?.delete(handler as HXTPEventHandler<unknown>);
     }
 
-    /** Whether the client is currently connected. */
+    /** Whether the client is currently connected and ACTIVE. */
     get connected(): boolean {
-        return this.transport?.state === "connected";
+        return this.lifecycle === "ACTIVE" && this.transport?.state === "connected";
     }
 
     /** Current monotonic sequence number. */
     get currentSequence(): number {
         return this.sequence;
+    }
+
+    /** Current lifecycle state. */
+    get currentLifecycle(): LifecycleState {
+        return this.lifecycle;
     }
 
     /* ── Private Methods ──────────────────────────────────────────────── */
@@ -193,6 +230,18 @@ export class HXTPClient {
             parsed = JSON.parse(raw) as Record<string, unknown>;
         } catch {
             this.emitError("PARSE_ERROR", "Invalid JSON message", false);
+            return;
+        }
+
+        // Handle HELLO_ACK before entering ACTIVE
+        if (this.lifecycle === "HELLO_SENT") {
+            if (parsed.message_type === "hello_ack") {
+                this.lifecycle = "ACTIVE";
+                this.startHeartbeat();
+                this.emit("connect", undefined);
+                return;
+            }
+            this.emitError("HELLO_TIMEOUT", "Expected HELLO_ACK", true);
             return;
         }
 
@@ -220,6 +269,7 @@ export class HXTPClient {
     }
 
     private handleClose(code: number, reason: string): void {
+        this.lifecycle = "DISCONNECTED";
         this.stopHeartbeat();
         this.emit("disconnect", { code, reason });
 
@@ -239,7 +289,7 @@ export class HXTPClient {
     private startHeartbeat(): void {
         const interval = this.config.heartbeatIntervalMs ?? 30_000;
         this.heartbeatTimer = setInterval(() => {
-            if (this.transport?.state === "connected" && this.crypto) {
+            if (this.lifecycle === "ACTIVE" && this.crypto) {
                 this.sendHeartbeat().catch(() => {});
             }
         }, interval);
@@ -251,7 +301,7 @@ export class HXTPClient {
      * The heartbeat is a fully signed HxTP envelope with message_type: "heartbeat".
      */
     private async sendHeartbeat(): Promise<void> {
-        if (!this.crypto || !this.transport || this.transport.state !== "connected") return;
+        if (this.lifecycle !== "ACTIVE" || !this.crypto || !this.transport) return;
 
         this.sequence++;
 
@@ -287,10 +337,10 @@ export class HXTPClient {
         this.reconnectTimer = setTimeout(async () => {
             if (this.destroyed) return;
             try {
+                this.lifecycle = "HELLO_SENT";
                 await this.transport?.connect();
                 this.reconnectAttempt = 0;
-                this.startHeartbeat();
-                this.emit("connect", undefined);
+                await this.sendHello();
             } catch {
                 this.scheduleReconnect();
             }
