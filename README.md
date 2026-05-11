@@ -4,18 +4,18 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Environment](https://img.shields.io/badge/env-Browser%20%7C%20Node%20%7C%20Bun-orange.svg)](https://nodejs.org/)
 
-**HxTP/3.1** JavaScript/TypeScript Client SDK — A high-performance implementation of the Ed25519-signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
+**HxTP/3.1**JavaScript/TypeScript Client SDK — A high-performance implementation of the Ed25519-signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
 
 ---
 
 ## Key Features
 
-- ** Lightweight**: Zero runtime dependencies. Tree-shakeable ESM build.
-- ** HxTP/3.1 Core**: Pipe-separated framing with mandatory backslash escaping and NFC normalization.
-- ** Native MQTT**: High-performance transport support via `MQTTTransport`.
-- ** Universal**: Works in **Browser**, **Node.js 18+**, **Bun**, **Deno**, and **React Native**.
-- ** Anti-Replay**: Integrated nonce generation and monotonic sequence enforcement.
-- ** Pluggable**: Customizable transport (MQTT/REST/WS) and crypto providers.
+- **Lightweight**: Zero runtime dependencies. Tree-shakeable ESM build.
+- **HxTP/3.1 Core**: Pipe-separated framing with mandatory backslash escaping and NFC normalization.
+- **Native MQTT**: High-performance transport support via `MQTTTransport`.
+- **Universal**: Works in **Browser**, **Node.js 18+**, **Bun**, **Deno**, and **React Native**.
+- **Anti-Replay**: Integrated nonce generation and monotonic sequence enforcement.
+- **Pluggable**: Customizable transport (MQTT/REST/WS) and crypto providers.
 
 ---
 
@@ -87,14 +87,14 @@ hxtp-js
 
 ## Protocol Alignment: HxTP/3.1
 
-This SDK implements HxTP/3.1 with **bit-perfect parity** to the Go, Python, and Embedded SDKs.
+This SDK implements HxTP/3.1 with **bit-perfect parity**to the Go, Python, and Embedded SDKs.
 
 | Component | Status | Details |
 | :--- | :--- | :--- |
-| **Framing** | | Pipe-separated (`\|`) with mandatory backslash escaping. |
-| **Normalization** | | Mandatory **Unicode NFC** normalization for all fields. |
-| **Numbers** | | Deterministic decimal strings (up to 20 places). |
-| **Compliance** | | Verified against the cross-language compliance suite. |
+| **Framing**| | Pipe-separated (`\|`) with mandatory backslash escaping. |
+| **Normalization**| | Mandatory **Unicode NFC**normalization for all fields. |
+| **Numbers**| | Deterministic decimal strings (up to 20 places). |
+| **Compliance**| | Verified against the cross-language compliance suite. |
 
 ---
 
