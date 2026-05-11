@@ -44,6 +44,38 @@ class WebCryptoProvider implements CryptoProvider {
         return bytesToHex(new Uint8Array(sig));
     }
 
+    async signEd25519(privateKey: Uint8Array, data: string): Promise<string> {
+        const subtle = getSubtle();
+        const key = await subtle.importKey(
+            "raw",
+            privateKey.buffer as ArrayBuffer,
+            { name: "Ed25519" },
+            false,
+            ["sign"],
+        );
+        const sig = await subtle.sign({ name: "Ed25519" }, key, encoder.encode(data));
+        return bytesToHex(new Uint8Array(sig));
+    }
+
+    async verifyEd25519(publicKey: Uint8Array, data: string, signature: string): Promise<boolean> {
+        const subtle = getSubtle();
+        const key = await subtle.importKey(
+            "raw",
+            publicKey.buffer as ArrayBuffer,
+            { name: "Ed25519" },
+            false,
+            ["verify"],
+        );
+        return await subtle.verify(
+            { name: "Ed25519" },
+            key,
+            new Uint8Array(
+                signature.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
+            ),
+            encoder.encode(data),
+        );
+    }
+
     async sha256Hex(data: string): Promise<string> {
         const subtle = getSubtle();
         const digest = await subtle.digest("SHA-256", encoder.encode(data));

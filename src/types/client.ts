@@ -21,11 +21,14 @@ export interface HXTPConfig {
     /** Device UUID (for device-mode clients). */
     readonly deviceId: string;
 
-    /** Shared secret as hex string (64 chars = 32 bytes). */
-    readonly secret: string;
+    /** Ed25519 signing key (private seed) as hex string (64 chars). */
+    readonly signingKey: string;
 
-    /** Previous secret for dual-key rotation window (hex string). */
-    readonly previousSecret?: string;
+    /** Ed25519 server public key for verifying inbound messages (hex string). */
+    readonly serverPublicKey: string;
+
+    /** Previous server public key for rotation window (hex string). */
+    readonly previousServerPublicKey?: string;
 
     /** Client application identifier (UUID). */
     readonly clientId: string;

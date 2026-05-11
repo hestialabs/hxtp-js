@@ -7,7 +7,7 @@
  */
 
 import type { CryptoProvider } from "../crypto/interface.js";
-import { constantTimeEqual, hexToBytes } from "../crypto/interface.js";
+import { hexToBytes } from "../crypto/interface.js";
 import { canonicalJson, pipeCanonical } from "./canonical.js";
 import { ED25519_SIG_HEX_LENGTH } from "../types/protocol.js";
 

@@ -60,9 +60,9 @@ export class HXTPClient {
         if (!config.tenantId) throw new Error("config.tenantId is required");
         if (!config.deviceId) throw new Error("config.deviceId is required");
         if (!config.clientId) throw new Error("config.clientId is required");
-        if (!config.secret) throw new Error("config.secret is required");
-        if (config.secret.length !== 64) {
-            throw new Error("config.secret must be a 64-character hex string");
+        if (!config.signingKey) throw new Error("config.signingKey is required");
+        if (config.signingKey.length !== 64) {
+            throw new Error("config.signingKey must be a 64-character hex string");
         }
         this.config = config;
     }
@@ -130,7 +130,7 @@ export class HXTPClient {
 
         const envelope = await buildEnvelope({
             crypto: this.crypto,
-            secretHex: this.config.secret,
+            secretHex: this.config.signingKey,
             deviceId: payload.deviceId ?? this.config.deviceId,
             tenantId: this.config.tenantId,
             clientId: this.config.clientId,
@@ -196,11 +196,11 @@ export class HXTPClient {
             return;
         }
 
-        if (this.crypto && this.config.secret) {
+        if (this.crypto && this.config.serverPublicKey) {
             const result = await validateMessage(parsed, {
                 crypto: this.crypto,
-                activeSecret: this.config.secret,
-                previousSecret: this.config.previousSecret,
+                activePublicKey: this.config.serverPublicKey,
+                previousPublicKey: this.config.previousServerPublicKey,
                 nonceCache: this.nonceCache ?? undefined,
                 maxMessageAgeSec: this.config.maxMessageAgeSec,
                 timestampSkewSec: this.config.timestampSkewSec,
@@ -257,7 +257,7 @@ export class HXTPClient {
 
         const envelope = await buildEnvelope({
             crypto: this.crypto,
-            secretHex: this.config.secret,
+            secretHex: this.config.signingKey,
             deviceId: this.config.deviceId,
             tenantId: this.config.tenantId,
             clientId: this.config.clientId,
