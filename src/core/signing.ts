@@ -11,7 +11,7 @@ import { hexToBytes } from "../crypto/interface.js";
 import { canonicalJson, pipeCanonical } from "./canonical.js";
 import { ED25519_SIG_HEX_LENGTH } from "../types/protocol.js";
 
-interface SignableMessage {
+export interface SignableMessage {
     readonly version: string;
     readonly message_type: string;
     readonly device_id: string;

@@ -16,7 +16,7 @@ import { bytesToHex } from "../crypto/interface.js";
 
 interface EnvelopeParams {
     readonly crypto: CryptoProvider;
-    readonly secretHex: string;
+    readonly signingKeyHex: string;
     readonly deviceId: string;
     readonly tenantId: string;
     readonly clientId: string;
@@ -38,10 +38,10 @@ interface EnvelopeParams {
  *   6. Return complete envelope
  */
 export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope> {
-    const { crypto, secretHex, deviceId, tenantId, messageType, params } = opts;
+    const { crypto, signingKeyHex, deviceId, tenantId, messageType, params } = opts;
 
-    if (!secretHex || secretHex.length !== 64) {
-        throw new Error("Secret must be a 64-character hex string (32 bytes).");
+    if (!signingKeyHex || signingKeyHex.length !== 64) {
+        throw new Error("signingKey must be a 64-character hex string (32 bytes).");
     }
 
     const messageId = generateUUID(crypto);
@@ -71,7 +71,7 @@ export async function buildEnvelope(opts: EnvelopeParams): Promise<HXTPEnvelope>
         payload_hash: payloadHash,
     };
 
-    const signature = await signMessage(crypto, secretHex, msgFields);
+    const signature = await signMessage(crypto, signingKeyHex, msgFields);
 
     return {
         ...msgFields,

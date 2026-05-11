@@ -43,8 +43,10 @@ interface ValidatableMessage {
     readonly message_type?: string;
     readonly device_id?: string;
     readonly tenant_id?: string;
-    readonly timestamp?: number;
+    readonly client_id?: string;
     readonly message_id?: string;
+    readonly request_id?: string;
+    readonly sequence_number?: number;
     readonly nonce?: string;
     readonly payload_hash?: string;
     readonly signature?: string;
@@ -166,7 +168,7 @@ export async function validateMessage(
                 | "payload_hash"
             >
         > &
-            Record<string, unknown>,
+        Record<string, unknown>,
         msg.signature,
     );
 

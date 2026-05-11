@@ -130,7 +130,7 @@ export class HXTPClient {
 
         const envelope = await buildEnvelope({
             crypto: this.crypto,
-            secretHex: this.config.signingKey,
+            signingKeyHex: this.config.signingKey,
             deviceId: payload.deviceId ?? this.config.deviceId,
             tenantId: this.config.tenantId,
             clientId: this.config.clientId,
@@ -257,7 +257,7 @@ export class HXTPClient {
 
         const envelope = await buildEnvelope({
             crypto: this.crypto,
-            secretHex: this.config.signingKey,
+            signingKeyHex: this.config.signingKey,
             deviceId: this.config.deviceId,
             tenantId: this.config.tenantId,
             clientId: this.config.clientId,
