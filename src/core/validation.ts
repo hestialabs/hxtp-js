@@ -17,7 +17,7 @@
  *   3. PayloadSize   — within MAX_PAYLOAD_BYTES
  *   4. Nonce         — non-empty; optionally checked against replay cache
  *   5. PayloadHash   — SHA-256 of params matches header
- *   6. Signature     — HMAC-SHA256 with dual-key fallback
+ *   6. Signature     — Ed25519 signature verification
  *
  * Copyright (c) 2026 Hestia Labs
  * SDK-License-Identifier: MIT
@@ -54,8 +54,8 @@ interface ValidatableMessage {
 
 interface ValidationOptions {
     readonly crypto: CryptoProvider;
-    readonly activeSecret: string;
-    readonly previousSecret?: string;
+    readonly activePublicKey: string;
+    readonly previousPublicKey?: string;
     readonly nonceCache?: NonceCache;
     readonly maxMessageAgeSec?: number;
     readonly timestampSkewSec?: number;
@@ -148,8 +148,8 @@ export async function validateMessage(
 
     const sigResult = await verifySignatureWithFallback(
         opts.crypto,
-        opts.activeSecret,
-        opts.previousSecret,
+        opts.activePublicKey,
+        opts.previousPublicKey,
         msg as Required<
             Pick<
                 ValidatableMessage,
@@ -157,9 +157,13 @@ export async function validateMessage(
                 | "message_type"
                 | "device_id"
                 | "tenant_id"
-                | "timestamp"
+                | "client_id"
                 | "message_id"
+                | "request_id"
+                | "sequence_number"
+                | "timestamp"
                 | "nonce"
+                | "payload_hash"
             >
         > &
             Record<string, unknown>,
@@ -167,7 +171,7 @@ export async function validateMessage(
     );
 
     if (!sigResult.valid) {
-        return fail(ProtocolError.SIGNATURE_INVALID, "HMAC-SHA256 verification failed");
+        return fail(ProtocolError.SIGNATURE_INVALID, "Ed25519 verification failed");
     }
 
     const result = pass();

@@ -22,6 +22,21 @@ export interface CryptoProvider {
     sha256Hex(data: string): Promise<string>;
 
     /**
+     * Sign data using Ed25519 and return hex signature (128 chars).
+     * @param privateKey - 32-byte private key.
+     * @param data - String data to sign.
+     */
+    signEd25519(privateKey: Uint8Array, data: string): Promise<string>;
+
+    /**
+     * Verify an Ed25519 signature.
+     * @param publicKey - 32-byte public key.
+     * @param data - Signed data string.
+     * @param signature - 128-char hex signature.
+     */
+    verifyEd25519(publicKey: Uint8Array, data: string, signature: string): Promise<boolean>;
+
+    /**
      * Generate cryptographically secure random bytes.
      * @param length - Number of bytes.
      */

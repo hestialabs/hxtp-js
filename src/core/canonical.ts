@@ -102,6 +102,7 @@ export function escapeField(s: string): string {
 export function pipeCanonical(msg: {
     readonly version: string;
     readonly device_id: string;
+    readonly tenant_id: string;
     readonly client_id: string;
     readonly message_id: string;
     readonly request_id: string;
@@ -114,6 +115,7 @@ export function pipeCanonical(msg: {
     const fields = [
         msg.version,
         msg.device_id,
+        msg.tenant_id,
         msg.client_id,
         msg.message_id,
         msg.request_id,

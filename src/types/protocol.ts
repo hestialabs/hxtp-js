@@ -16,11 +16,11 @@ export const MAX_MESSAGE_AGE_SEC = 30;
 export const TIMESTAMP_SKEW_SEC = 5;
 export const NONCE_TTL_SEC = 60;
 export const MAX_PAYLOAD_BYTES = 16_384;
-export const HMAC_HEX_LENGTH = 64;
+export const ED25519_SIG_HEX_LENGTH = 128;
 export const SHA256_HEX_LENGTH = 64;
 export const MIN_NONCE_BYTES = 16;
-export const SECRET_BYTES = 32;
-export const SECRET_HEX_LENGTH = 64;
+export const ED25519_PUB_HEX_LENGTH = 64;
+export const ED25519_PRIV_HEX_LENGTH = 64;
 
 /* ── Message Types ───────────────────────────────────────────────────── */
 
@@ -73,6 +73,7 @@ export interface HXTPMessageHeader {
 export interface HXTPCanonicalFields {
     readonly version: string;
     readonly device_id: string;
+    readonly tenant_id: string;
     readonly client_id: string;
     readonly message_id: string;
     readonly request_id: string;
