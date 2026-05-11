@@ -50,7 +50,7 @@ const client = new Client({
 });
 
 // Use native MQTT for sub-millisecond dispatch
-const mqtt = new MQTTTransport({ url: "tcp://broker.hestialabs.in:1883" });
+const mqtt = new MQTTTransport({ url: "tcp://mqtt.hestialabs.in:1883" });
 client.setTransport(mqtt);
 
 await mqtt.connect();
