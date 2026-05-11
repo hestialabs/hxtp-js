@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Environment](https://img.shields.io/badge/env-Browser%20%7C%20Node%20%7C%20Bun-orange.svg)](https://nodejs.org/)
 
-**HxTP/3.1** JavaScript/TypeScript Client SDK — A high-performance implementation of the HMAC-SHA256 signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
+**HxTP/3.1** JavaScript/TypeScript Client SDK — A high-performance implementation of the Ed25519-signed IoT protocol. Designed for speed, security, and zero runtime dependencies.
 
 ---
 
@@ -45,7 +45,7 @@ const client = new Client({
   tenantId: "your-tenant-uuid",
   deviceId: "your-device-uuid",
   clientId: "unique-client-id",
-  secret: "64-char-hex-secret",
+  signingKey: "64-char-hex-private-key",
   crypto: new NodeCryptoProvider()
 });
 
@@ -71,7 +71,7 @@ The SDK is built with a strictly modular architecture to support diverse environ
 hxtp-js
 ├── core/           Protocol-agnostic core logic
 │   ├── canonical   HxTP/3.1 Pipe-separated builder
-│   ├── signing     HMAC-SHA256 signature engine
+│   ├── signing     Ed25519 signature engine
 │   ├── validation  7-step protocol validation pipeline
 │   ├── envelope    Signed message envelope builder
 │   └── nonce       Replay protection & nonce management
