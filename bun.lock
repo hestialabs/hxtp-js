@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@hestialabs/hxtp-js",
+      "name": "hxtp-js",
       "dependencies": {
         "mqtt": "^5.15.1",
       },

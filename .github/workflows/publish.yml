@@ -97,10 +97,10 @@ jobs:
           name: "hxtp-js ${{ github.ref_name }}"
           generate_release_notes: true
           body: |
-            ## @hestialabs/hxtp-js ${{ github.ref_name }}
+            ## hxtp-js ${{ github.ref_name }}
             Oficial HxTP/3.0 Client SDK for JavaScript and TypeScript.
             ### Install
             ```bash
-            bun add @hestialabs/hxtp-js
+            bun add hxtp-js
             ```
           make_latest: true

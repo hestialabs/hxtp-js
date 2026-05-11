@@ -23,10 +23,10 @@
 
 ```bash
 # bun (recommended)
-bun add @hestialabs/hxtp-js
+bun add hxtp-js
 
 # npm
-npm install @hestialabs/hxtp-js
+npm install hxtp-js
 ```
 
 ---
@@ -36,9 +36,9 @@ npm install @hestialabs/hxtp-js
 ### Native MQTT Command Execution
 
 ```typescript
-import { Client } from "@hestialabs/hxtp-js";
-import { MQTTTransport } from "@hestialabs/hxtp-js/transport/mqtt";
-import { NodeCryptoProvider } from "@hestialabs/hxtp-js/crypto/node";
+import { Client } from "hxtp-js";
+import { MQTTTransport } from "hxtp-js/transport/mqtt";
+import { NodeCryptoProvider } from "hxtp-js/crypto/node";
 
 const client = new Client({
   url: "https://api.hestialabs.in/api/v1",
